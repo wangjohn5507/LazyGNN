@@ -80,7 +80,9 @@ def get_args():
     parser.add_argument(
         '--device', type=str, default=0, help='Choose the GPU'
     )
-
+       
+    # To make it work on Google Colab uncomment this
+    #parser.add_argument('-f')
     args, _ = parser.parse_known_args()
 
     if args.dataset == "ogbn-products":

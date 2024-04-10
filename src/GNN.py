@@ -17,6 +17,7 @@ import torch_geometric
 import torch_geometric.transforms as T
 from torch_geometric.nn import GCNConv
 
+# Lazy propagation based on the equations from the paper
 class Lazy_Prop(torch.autograd.Function):
 
     @staticmethod
@@ -81,7 +82,7 @@ class Lazy_Prop(torch.autograd.Function):
         g[self.size:] = 0  ###use gradients of target nodes 
         return g, None, None, None, None, None, None, None, None, None, None
 
-
+# The GCN graph
 class GCN(torch.nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim):
         super(GCN, self).__init__()
@@ -93,6 +94,7 @@ class GCN(torch.nn.Module):
         x = self.conv2(x, edge_index)
         return F.log_softmax(x, dim=1)
     
+# Our model with linear layers and relu
 class Net(torch.nn.Module):
     def __init__(self, num_features, hidden_channels, num_classes, num_layers, num_nodes, dropout, **kwargs):
         super(Net, self).__init__()
@@ -112,7 +114,7 @@ class Net(torch.nn.Module):
         for linear in self.linears:
             linear.reset_parameters()
 
-
+    # forward method
     def forward(self, x, adj, id, size, K, alpha, beta, theta, device):
         for i, linear in enumerate(self.linears[:-1]):
             x = linear(x)
