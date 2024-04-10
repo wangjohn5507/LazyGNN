@@ -1,6 +1,6 @@
 # LazyGNN
 
-Project Structure
+## Project Structure
 
 - The main paper and our report is in the "Document" folder.
 
@@ -8,12 +8,12 @@ Project Structure
 
 - The experiment results are in the "Tensorboard_record" folder.
 
-Installation
+## Installation
 ```
 pip install git+https://github.com/rusty1s/pyg_autoscale.git
 ```
 
-Reproduce
+## Reproduce
 ```
 python main.py --dataset ogbn-arxiv --device 'cuda:0'
 ```
