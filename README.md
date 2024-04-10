@@ -2,11 +2,11 @@
 
 Project Structure
 
-The main paper and our report is in the "Document" folder.
+- The main paper and our report is in the "Document" folder.
 
-Our code and all the required utils are stored in the "src" folder.
+- Our code and all the required utils are stored in the "src" folder.
 
-The experiment results are in the "Tensorboard_record" folder.
+- The experiment results are in the "Tensorboard_record" folder.
 
 Installation
 ```
