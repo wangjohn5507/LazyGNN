@@ -1,15 +1,13 @@
 import time
-
 import argparse
 import os.path as osp
 import numpy as np
 import time
 import copy
 import math
-
 import torch
 
-print('version', torch.__version__)
+# print('version', torch.__version__)
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.optim.lr_scheduler import LambdaLR
@@ -33,15 +31,13 @@ from torch_geometric.nn import GCNConv
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 from torch.utils.tensorboard import SummaryWriter
 
-
-
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-
+# Load the dataset
 dataset = PygNodePropPredDataset(name='ogbn-arxiv')
 data = dataset[0].to(device)
 
-
+# Split dataset into train and validation sets
 split_idx = dataset.get_idx_split()
 train_idx = split_idx['train'].to(device)
 val_idx = split_idx['valid'].to(device)
@@ -94,13 +90,16 @@ if __name__ == "__main__":
     data, in_channels, out_channels = get_data(root, args.dataset)
     print(in_channels, out_channels)
     print('data: ',data)
+    # preprocessing the data by permuting them
     perm, ptr = metis(data.adj_t, num_parts=args.num_parts, log=True)  #### clustering
     data = permute(data, perm, log=True)
     data.n_id = torch.arange(data.num_nodes) ### assign index to nodes
     
+    # adjacency matrix
     data.adj_t = data.adj_t.set_diag()
     data.adj_t = gcn_norm(data.adj_t, add_self_loops=False)
     
+    # create the batch dataset
     train_loader = SubgraphLoader(data, ptr, batch_size=args.batch_size,
                                   shuffle=True, num_workers=0,
                                   persistent_workers=False)
@@ -110,15 +109,19 @@ if __name__ == "__main__":
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
     print('device', device)
     writer = SummaryWriter('Tensorboard_record/')
+    
+    # load the model
     model = Net(in_channels, args.hidden, out_channels, args.num_layers, data.num_nodes, args.dropout)
     model = model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     
+    # setting the learning rate hyperparameter 
     total_steps = args.epochs 
     warmup_steps = total_steps/10
     min_lr = 1e-5      
     max_lr = 1e-3        
     
+    # Learning rate scheduler
     def cosine_warmup_scheduler(optimizer, warmup_steps, total_steps, min_lr, max_lr):
         def lr_lambda(current_step: int):
             if current_step < warmup_steps:
@@ -141,10 +144,12 @@ if __name__ == "__main__":
     model.reset_parameters()
     for epoch in range(args.epochs):
         scheduler.step()
+        # get the training loss
         loss = train(model, optimizer, scheduler, train_loader, device, args)
         lr = scheduler.get_last_lr()
         writer.add_scalar('Loss/train', loss, epoch)
         writer.add_scalar('LR/leaning_rate', lr[0], epoch)
+        # validate the model
         train_acc, val_acc, test_acc = test(model, data, device, args)
         if val_acc > best_val:
             best_val = val_acc
