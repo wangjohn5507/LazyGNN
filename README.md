@@ -2,7 +2,7 @@
 
 ## Project Structure
 
-- The main paper and our report is in the "Document" folder.
+- The main paper and our report is in the "Documents" folder.
 
 - Our code and all the required utils are stored in the "src" folder.
 
